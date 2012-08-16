@@ -105,5 +105,18 @@ describe "domain parser" do
       lambda { @domain_parser.parse("http:/") }.should raise_error(Domainatrix::ParseError)
     end
 
+    it "parses an ip address" do
+      @domain_parser.parse("http://123.123.123.123/foo/bar")[:domain].should == "123.123.123.123"
+      @domain_parser.parse("http://123.123.123.123/foo/bar")[:path].should == "/foo/bar"
+      @domain_parser.parse("http://123.123.123.123/foo/bar")[:ip_address].should == true
+    end
+
+    it "parses a host with numeric domain" do
+      @domain_parser.parse("http://123.123.123.co.uk/foo/bar")[:subdomain].should == "123.123"
+      @domain_parser.parse("http://123.123.123.co.uk/foo/bar")[:domain].should == "123"
+      @domain_parser.parse("http://123.123.123.co.uk/foo/bar")[:public_suffix].should == "co.uk"
+      @domain_parser.parse("http://123.123.123.co.uk/foo/bar")[:ip_address].should == false
+    end
+
   end
 end

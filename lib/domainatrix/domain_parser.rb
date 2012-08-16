@@ -72,9 +72,13 @@ module Domainatrix
 
     def parse_domains_from_host(host)
       parts = host.split(".").reverse
+      ip_address = false
 
       if host == '*'
         tld_size = 0
+      elsif !parts.map { |part| part.match(/\d+/) }.include?(nil)
+        # host is an ip address
+        ip_address = true
       else
         main_tld = parts.first
 
@@ -112,8 +116,13 @@ module Domainatrix
         end
       end
 
-      subdomain, domain, tld = split_domain(parts, tld_size)
-      {:public_suffix => tld, :domain => domain, :subdomain => subdomain}
+      if ip_address
+        subdomain, domain, tld = '', host, ''
+      else
+        subdomain, domain, tld = split_domain(parts, tld_size)
+      end
+
+      {:public_suffix => tld, :domain => domain, :subdomain => subdomain, :ip_address => ip_address}
     end
   end
 end
